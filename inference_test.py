@@ -6,7 +6,7 @@ from rfdetr.util.coco_classes import COCO_CLASSES
 # Load the model
 model = RFDETRNano()
 
-# Load an image from a URL
+# Load the image
 image_file = "images/dog.jpg"
 image = Image.open(image_file)
 

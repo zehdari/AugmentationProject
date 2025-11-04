@@ -1,1 +1,5 @@
 venv/
+.py*
+*.pth
+.env
+basketball*/

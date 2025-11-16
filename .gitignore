@@ -1,5 +1,7 @@
-venv/
+aug_venv/
 .py*
 *.pth
 .env
 basketball*/
+output/
+darkenv/

@@ -23,6 +23,8 @@ labels = [
 annotated_image = image.copy()
 annotated_image = sv.BoxAnnotator().annotate(annotated_image, detections)
 annotated_image = sv.LabelAnnotator().annotate(annotated_image, detections, labels)
+output_path = "images/dog_annotated.jpg"
+annotated_image.save(output_path)
 
 # Display the result
 sv.plot_image(annotated_image)

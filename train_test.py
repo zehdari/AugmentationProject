@@ -4,9 +4,9 @@ def main():
     model = RFDETRNano()
     model.train(
         dataset_dir="basketball-player-detection-2-13",
-        epochs=10,
-        batch_size=4,
-        grad_accum_steps=2
+        epochs=5,
+        batch_size=14,
+        grad_accum_steps=1
     )
 
 if __name__ == "__main__":

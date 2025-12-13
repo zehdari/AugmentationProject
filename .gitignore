@@ -5,3 +5,12 @@ aug_venv/
 basketball*/
 output/
 darkenv/
+google-cloud-sdk/
+earlytestingcode/
+cocodataForRFDetr/
+cocodataset/
+problemone/
+reindexcoco/
+Documentation/
+reindex.py
+coconew/

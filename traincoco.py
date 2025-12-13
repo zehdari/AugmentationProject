@@ -3,9 +3,9 @@ from rfdetr import RFDETRNano
 def main():
     model = RFDETRNano()
     model.train(
-        dataset_dir="basketball-player-detection-2-13",
-        epochs=5,
-        batch_size=14,
+        dataset_dir="reindexcoco",
+        epochs=1,
+        batch_size=12,
         grad_accum_steps=1
     )
 

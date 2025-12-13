@@ -1,50 +1,48 @@
-# AugmentationProject
+# Introduction and current progress
+- [ ] Train one epoch then do inference on test.
+- [ ] apply rotation using Albumentations
+- [ ] 
+
+
+
+
+
+# AugmentationProject OSC
 
 ## Setup
 
-Tested using python 3.13.9
+The set up is based on creating a Python Built-in Virtual Environment in OSC.
 
-### Using penv
+### Using venv
 
 ```bash
-pyenv install 3.13.9
-pyenv virtualenv 3.13.9 venv
-pyenv activate venv
+python3 -m venv aug_venv
+source ./aug_venv/bin/activate
 pip install albumentationsx rfdetr
 ```
 
-## Running the scripts
-
-### Test inference
-
+### Apply for GPU
 ```bash
-python inference_test.py
+srun \
+  --account=PAS2119 \
+  --time=00:30:00 \
+  --nodes=1 \
+  --ntasks-per-node=1 \
+  --cpus-per-task=8 \
+  --gpus-per-node=1 \
+  --pty /bin/bash
 ```
 
-### Test augmentations
 
+### Run training
 ```bash
-python augmentation_test.py
+torchrun --nproc_per_node=1 traincoco.py
 ```
 
-### Test Training
+## Augmentation
+### rf-detr auto-apply augmentation
+RF-DETR automatically applies a random crop and a random horizontal flip.
 
-#### Download a test training dataset
+In addition, model randomly resize the image during training, allowing user to run with confidence at different resolutions at inference. People often refer to this as a multi scale augmentation.
+Link to the details: [Forum](https://discuss.roboflow.com/t/rf-detr-augmentations/10996) and [code](https://github.com/roboflow/rf-detr/blob/24ce179cb5d71d9049724c9f3bc25b506d9f42a4/rfdetr/datasets/coco.py#L160)
 
-To download a sample dataset for training we can use roboflow. Create a roboflow account and go to [roboflow settings](https://www.google.com/url?q=https%3A%2F%2Fapp.roboflow.com%2Fsettings%2Fapi)
-
-Create a file called `.env` and inside of it put `ROBOFLOW_API_KEY=your_api_key_here`
-
-With the API key set up you can now run:
-
-```bash
-python download_dataset.py
-```
-
-#### Run the training
-
-Now that the dataset is downloaded, we can start training with
-
-```bash
-python train_test.py
-```

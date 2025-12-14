@@ -1,22 +1,52 @@
 from ultralytics import YOLO
 import multiprocessing as mp
+import argparse
+
+# =========================
+# Fixed training parameters
+# =========================
+MODEL_WEIGHTS = "yolo11n.pt"
+EPOCHS = 30
+BATCH = 32
+IMGSZ = 640
+WORKERS = 8
+AUGMENT = False
 
 def main():
-    # Initialize model
-    model = YOLO('yolo11n.pt')
+    parser = argparse.ArgumentParser(description="YOLO training entrypoint")
+    parser.add_argument(
+        "--data",
+        required=True,
+        help="Path to data.yaml for this run",
+    )
+    parser.add_argument(
+        "--project",
+        required=True,
+        help="Ultralytics project directory (e.g. runs/kitti)",
+    )
+    parser.add_argument(
+        "--name",
+        required=True,
+        help="Run name (subdirectory under project)",
+    )
 
-    # Basic training configuration
+    args = parser.parse_args()
+
+    # Initialize model
+    model = YOLO(MODEL_WEIGHTS)
+
+    # Train
     model.train(
-        data=r'S:\AugProject\kitti_rf_detr\train\rfdetr_dataset\data.yaml',      # dataset config file
-        epochs=30,                    # number of epochs
-        batch=32,                      # batch size (-1 for auto)
-        imgsz=640,                     # image size
-        project='runs/kitti', # main project directory
-        name='kitti_rot30',         # subfolder name for this run
-        augment=False,
-        workers=8
+        data=args.data,
+        epochs=EPOCHS,
+        batch=BATCH,
+        imgsz=IMGSZ,
+        project=args.project,
+        name=args.name,
+        augment=AUGMENT,
+        workers=WORKERS,
     )
 
 if __name__ == "__main__":
-    mp.freeze_support()  # helps on Windows (fine for other os)
+    mp.freeze_support()  # important for Windows + multiprocessing
     main()

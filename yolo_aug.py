@@ -3,7 +3,7 @@ import albumentations as A
 from pathlib import Path
 
 INPUT_ROOT = Path(r"S:\AugProject\kitti_rf_detr\train\rfdetr_dataset\Dataset")
-OUTPUT_ROOT = Path(r"S:\AugProject\kitti_rf_detr\train\rfdetr_dataset\Dataset_crop_e05_p1")
+OUTPUT_ROOT = Path(r"S:\AugProject\kitti_rf_detr\train\rfdetr_dataset\Dataset_brightness__p1")
 
 SPLIT = "train"
 COPIES_PER_IMAGE = 1 # No more for now
@@ -47,23 +47,60 @@ LBL_OUT.mkdir(parents=True, exist_ok=True)
 #     ),
 # )
 
-### CROP
+# ### CROP
+# transform = A.Compose(
+#     [
+#         A.RandomSizedBBoxSafeCrop(
+#             height=640,
+#             width=640,
+#             erosion_rate=0.05,  # allow slight trimming
+#             p=1.0,
+#         ),
+#     ],
+#     bbox_params=A.BboxParams(
+#         format="albumentations",
+#         label_fields=["class_labels"],
+#         min_visibility=MIN_VISIBILITY,
+#     ),
+# )
+
+### BRIGHTNESS/CONTRAST
 transform = A.Compose(
     [
-        A.RandomSizedBBoxSafeCrop(
-            height=640,
-            width=640,
-            erosion_rate=0.05,  # allow slight trimming
+        A.RandomBrightnessContrast(
+            brightness_limit=0.2,   # ±20% brightness
+            contrast_limit=0.2,     # ±20% contrast
             p=1.0,
         ),
     ],
     bbox_params=A.BboxParams(
         format="albumentations",
         label_fields=["class_labels"],
-        min_visibility=MIN_VISIBILITY,
     ),
 )
 
+### SHARPNESS/BLUR
+transform = A.Compose(
+    [
+        A.OneOf(
+            [
+                A.MotionBlur(blur_limit=7, p=1.0),
+                A.GaussianBlur(blur_limit=(3, 7), p=1.0),
+                A.MedianBlur(blur_limit=5, p=1.0),
+            ],
+            p=0.5,
+        ),
+        A.Sharpen(
+            alpha=(0.1, 0.3),   # strength of sharpening
+            lightness=(0.7, 1.3),
+            p=0.5,
+        ),
+    ],
+    bbox_params=A.BboxParams(
+        format="albumentations",
+        label_fields=["class_labels"],
+    ),
+)
 
 
 def yolo_to_xyxy(box):

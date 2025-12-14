@@ -2,9 +2,7 @@ from ultralytics import YOLO
 import multiprocessing as mp
 import argparse
 
-# =========================
-# Fixed training parameters
-# =========================
+### Fixed training parameters
 MODEL_WEIGHTS = "yolo11n.pt"
 EPOCHS = 30
 BATCH = 32

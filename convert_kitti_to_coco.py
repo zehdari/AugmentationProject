@@ -5,7 +5,7 @@ from pathlib import Path
 from PIL import Image
 
 # Paths
-KITTI_ROOT = Path(r"/Users/cam/Programming/AugmentationProject/KITTI/training")
+KITTI_ROOT = Path(r"S:\AugProject\kitti_rf_detr\train")
 IMG_DIR = KITTI_ROOT / "image_2"
 LBL_DIR = KITTI_ROOT / "label_2"
 IMAGESETS_DIR = KITTI_ROOT / "ImageSets"
@@ -19,7 +19,7 @@ TRAIN_RATIO = 0.8
 VALID_RATIO = 0.1  # remaining 0.1 goes to test
 
 # Image move strategy
-MOVE_MODE = "symlink"
+MOVE_MODE = "copy"
 
 # Classes
 KEEP_CLASSES = ["Car", "Van", "Truck", "Pedestrian", "Person_sitting", "Cyclist", "Tram", "Misc"]

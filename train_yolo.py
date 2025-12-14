@@ -9,10 +9,10 @@ def main():
     model.train(
         data=r'S:\AugProject\kitti_rf_detr\train\rfdetr_dataset\data.yaml',      # dataset config file
         epochs=30,                    # number of epochs
-        batch=-1,                      # batch size (-1 for auto)
+        batch=32,                      # batch size (-1 for auto)
         imgsz=640,                     # image size
-        project='runs/robot_training', # main project directory
-        name='detection_model',         # subfolder name for this run
+        project='runs/kitti', # main project directory
+        name='kitti_rot30',         # subfolder name for this run
         augment=False,
         workers=8
     )

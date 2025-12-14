@@ -39,6 +39,27 @@ srun \
 torchrun --nproc_per_node=1 traincoco.py
 ```
 
+### Track GPU usage while training 
+
+We firstly run in the same cluster
+```bash
+squeue -u $USER
+```
+you might get sth like below.
+```bash
+[darklord@p0354 ~]$ squeue -u $USER
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          42525744  gpu-quad     bash darklord  R      45:07      1 p0354
+```
+ssh to that node.
+```bash
+ssh p0354
+```
+Then we can check GPU usage percent in another Terminal by 
+```bash
+nvidia-smi
+```
+
 ## Augmentation
 ### rf-detr auto-apply augmentation
 RF-DETR automatically applies a random crop and a random horizontal flip.

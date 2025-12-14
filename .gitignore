@@ -14,3 +14,12 @@ reindexcoco/
 Documentation/
 reindex.py
 coconew/
+cocodataForRFDetr
+rf_detr/
+YolovcocoDataset/
+cameronfile/
+coco_minitrain_25k/
+modifieddataset/
+runs/
+yolo11n.pt
+yolovcode/

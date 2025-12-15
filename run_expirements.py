@@ -2,6 +2,7 @@ import subprocess
 from pathlib import Path
 import csv
 import sys
+import shutil
 PY = sys.executable
 ### CONFIG
 
@@ -109,6 +110,11 @@ def main():
             }
             append_metrics(record)
             print(f"Appended metrics to {METRICS_CSV}")
+
+            # 4) Cleanup augmented dataset
+            if output_dataset.exists():
+                print(f"Deleting augmented dataset: {output_dataset}")
+                shutil.rmtree(output_dataset)
 
     print("\nALL EXPERIMENTS COMPLETE")
 

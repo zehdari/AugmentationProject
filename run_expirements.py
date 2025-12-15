@@ -115,6 +115,10 @@ def main():
             if output_dataset.exists():
                 print(f"Deleting augmented dataset: {output_dataset}")
                 shutil.rmtree(output_dataset)
+                
+            if data_yaml.exists():
+                print(f"Deleting data yaml: {data_yaml}")
+                data_yaml.unlink()
 
     print("\nALL EXPERIMENTS COMPLETE")
 

@@ -1,12 +1,3 @@
-# Introduction and current progress
-- [ ] Train one epoch then do inference on test.
-- [ ] apply rotation using Albumentations
-- [ ] 
-
-
-
-
-
 # AugmentationProject OSC
 
 ## Setup
@@ -58,6 +49,16 @@ ssh p0354
 Then we can check GPU usage percent in another Terminal by 
 ```bash
 nvidia-smi
+```
+
+## tmux
+New tmux
+```bash
+tmux new -s train
+```
+Reattach
+```bash
+tmux attach -t train
 ```
 
 ## Augmentation

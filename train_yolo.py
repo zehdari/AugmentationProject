@@ -4,8 +4,8 @@ import argparse
 
 ### Fixed training parameters
 MODEL_WEIGHTS = "yolo11n.pt"
-EPOCHS = 1
-BATCH = 32
+EPOCHS = 30
+BATCH = 64
 IMGSZ = 640
 WORKERS = 8
 AUGMENT = False
@@ -43,6 +43,8 @@ def main():
         name=args.name,
         augment=AUGMENT,
         workers=WORKERS,
+        device="0,1,2,3",
+
     )
 
 if __name__ == "__main__":

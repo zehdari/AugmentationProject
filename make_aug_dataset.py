@@ -25,6 +25,12 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
         label_fields=["class_labels"],
     )
 
+    if aug == "mirror":
+        return A.Compose(
+            [A.HorizontalFlip(p=p)],
+            bbox_params=bbox_params_geo,
+        )
+    
     if aug == "rotate":
         return A.Compose(
             [A.Rotate(limit=30, border_mode=cv2.BORDER_REFLECT_101, p=p)],
@@ -203,7 +209,7 @@ def main():
     ap.add_argument("--input_root", required=True)
     ap.add_argument("--output_root", required=True)
     ap.add_argument("--aug", required=True,
-                    choices=["rotate", "zoom", "crop", "brightness", "contrast", "sharpness", "blur", "dropout"])
+                    choices=["mirror", "rotate", "zoom", "crop", "brightness", "contrast", "sharpness", "blur", "dropout"])
     ap.add_argument("--p", type=float, default=1.0)
     ap.add_argument("--split", default="train")  # keep train only
     ap.add_argument("--copies", type=int, default=COPIES_PER_IMAGE_DEFAULT)
@@ -223,7 +229,7 @@ def main():
     lbl_out.mkdir(parents=True, exist_ok=True)
 
     out_yaml = write_modified_data_yaml(output_root)
-    print(f"🧾 Wrote data.yaml -> {out_yaml}")
+    print(f"Wrote data.yaml -> {out_yaml}")
     print(f"    train -> {output_root.name}/images/train")
     print(f"    val   -> Dataset/images/val (original)")
 

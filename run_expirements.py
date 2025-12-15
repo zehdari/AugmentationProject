@@ -22,9 +22,14 @@ YOLO_PROJECT = Path(r"runs\kitti")  # relative is fine
 # Master metrics CSV (will append resutls)
 METRICS_CSV = HERE / "aug_results.csv"
 
-AUGS = ["rotate", "zoom", "crop", "brightness", "contrast", "sharpness", "blur", "dropout"]
+#AUGS = ["rotate", "zoom", "crop", "brightness", "contrast", "sharpness", "blur", "dropout"]
+AUGS = ["mirror"]
 PS = [1.0, 0.5, 0.25]
 IMGSZ = 640
+
+RUN_CONTROL_FIRST = False
+DELETE_AUG_DATASET_AFTER_RUN = False
+DELETE_AUG_YAML_AFTER_RUN = False
 
 ### Helpers
 
@@ -70,6 +75,42 @@ def main():
         raise FileNotFoundError(f"Could not find {AUG_SCRIPT} (expected next to this runner)")
     if not TRAIN_SCRIPT.exists():
         raise FileNotFoundError(f"Could not find {TRAIN_SCRIPT} (expected next to this runner)")
+
+    if RUN_CONTROL_FIRST:
+        print("\n" + "=" * 80)
+        print("RUNNING: CONTROL (base dataset, no augmentation)")
+        print("=" * 80)
+
+        dataset_name = "Dataset_control"
+        data_yaml = DATASET_PARENT / "data.yaml"
+
+        run_name = "kitti_control"
+        run_dir = Path(YOLO_PROJECT) / run_name
+        results_csv = run_dir / "results.csv"
+
+        # 2) Train in yolo env
+        train_cmd = (
+            f'python "{TRAIN_SCRIPT}" '
+            f'--data "{data_yaml}" '
+            f'--project "{YOLO_PROJECT}" '
+            f'--name "{run_name}"'
+        )
+        run_cmd(conda_cmd(TRAIN_ENV, train_cmd))
+
+        # 3) Collect metrics (last row of results.csv) and append
+        print("Collecting metrics from:", results_csv)
+        final = csv_last_row(results_csv)
+
+        record = {
+            "aug": "control",
+            "p": 0.0,
+            "dataset": dataset_name,
+            "project": str(YOLO_PROJECT),
+            "run_name": run_name,
+            **final,
+        }
+        append_metrics(record)
+        print(f"Appended metrics to {METRICS_CSV}")
 
     for p in PS:
         p_tag = str(p).replace(".", "")  # 1.0->10, 0.5->05, 0.25->025
@@ -121,6 +162,22 @@ def main():
             }
             append_metrics(record)
             print(f"Appended metrics to {METRICS_CSV}")
+
+            if DELETE_AUG_DATASET_AFTER_RUN:
+                try:
+                    import shutil
+                    shutil.rmtree(output_dataset)
+                    print(f"Deleted augmented dataset folder: {output_dataset}")
+                except Exception as e:
+                    print(f"Warning: failed to delete dataset folder {output_dataset}: {e}")
+
+            if DELETE_AUG_YAML_AFTER_RUN:
+                try:
+                    if data_yaml.exists():
+                        data_yaml.unlink()
+                        print(f"Deleted augmented yaml: {data_yaml}")
+                except Exception as e:
+                    print(f"Warning: failed to delete yaml {data_yaml}: {e}")
 
     print("\nALL EXPERIMENTS COMPLETE")
 

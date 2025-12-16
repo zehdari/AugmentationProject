@@ -20,6 +20,13 @@ YolovcocoDataset/
 cameronfile/
 coco_minitrain_25k/
 modifieddataset/
-runs/
 yolo11n.pt
 yolovcode/
+lostdataset/
+lostrunexperiment.py
+losttrainyolov.py
+mirrorruns/
+Documentation/
+lost_aug_dataset.py
+run_baseline.py
+base_run/

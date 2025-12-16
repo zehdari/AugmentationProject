@@ -43,7 +43,7 @@ def main():
         name=args.name,
         augment=AUGMENT,
         workers=WORKERS,
-        device="0,1,2,3",
+        # device="0,1,2,3",
 
     )
 

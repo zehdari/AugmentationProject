@@ -1,0 +1,4 @@
+aug,p,dataset,project,run_name,epoch,time,train/box_loss,train/cls_loss,train/dfl_loss,metrics/precision(B),metrics/recall(B),metrics/mAP50(B),metrics/mAP50-95(B),val/box_loss,val/cls_loss,val/dfl_loss,lr/pg0,lr/pg1,lr/pg2
+mirror,1.0,Dataset_mirror_p10,/users/PAS2119/darklord/CVfinalproject/AugmentationProject/mirrorruns,coco_mirror_p10,30,2935.58,1.12957,1.14316,1.18306,0.57224,0.44333,0.46766,0.32438,1.19033,1.31242,1.19831,0.00043,0.00043,0.00043
+mirror,0.5,Dataset_mirror_p05,/users/PAS2119/darklord/CVfinalproject/AugmentationProject/mirrorruns,coco_mirror_p05,30,2914.45,1.12829,1.14487,1.18337,0.58398,0.43483,0.46714,0.32497,1.19012,1.30801,1.19907,0.00043,0.00043,0.00043
+mirror,0.25,Dataset_mirror_p025,/users/PAS2119/darklord/CVfinalproject/AugmentationProject/mirrorruns,coco_mirror_p025,30,3051.71,1.12889,1.14397,1.1833,0.59568,0.42918,0.46729,0.32355,1.19152,1.30797,1.1987,0.00043,0.00043,0.00043

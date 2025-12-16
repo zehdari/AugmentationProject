@@ -68,3 +68,5 @@ RF-DETR automatically applies a random crop and a random horizontal flip.
 In addition, model randomly resize the image during training, allowing user to run with confidence at different resolutions at inference. People often refer to this as a multi scale augmentation.
 Link to the details: [Forum](https://discuss.roboflow.com/t/rf-detr-augmentations/10996) and [code](https://github.com/roboflow/rf-detr/blob/24ce179cb5d71d9049724c9f3bc25b506d9f42a4/rfdetr/datasets/coco.py#L160)
 
+### Dataset I trained on
+[COCOminitrain](https://github.com/giddyyupp/coco-minitrain) is used as the dataset for argumentation exploration. COCO minitrain is a curated mini training set (25K images ≈ 20% of train2017) for COCO.

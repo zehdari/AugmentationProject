@@ -23,8 +23,8 @@ YOLO_PROJECT = Path(r"/users/PAS2119/darklord/CVfinalproject/AugmentationProject
 # Master metrics CSV (will append resutls)
 METRICS_CSV = HERE / "aug_results.csv"
 
-AUGS = ["crop", "brightness", "contrast", "sharpness", "blur", "dropout"] #"rotate", "zoom", 
-PS = [1.0, 0.5, 0.25]
+AUGS = ["rotate", "zoom","crop", "brightness", "contrast", "sharpness", "blur", "dropout"] #
+PS = [0.25]
 IMGSZ = 640
 
 ### Helpers

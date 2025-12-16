@@ -1,0 +1,4 @@
+aug,p,dataset,project,run_name,epoch,time,train/box_loss,train/cls_loss,train/dfl_loss,metrics/precision(B),metrics/recall(B),metrics/mAP50(B),metrics/mAP50-95(B),val/box_loss,val/cls_loss,val/dfl_loss,lr/pg0,lr/pg1,lr/pg2
+rotate,0.5,Dataset_rotate_p05,/users/PAS2119/darklord/CVfinalproject/AugmentationProject/runs,coco_rotate_p05,30,2940.81,1.28747,1.30051,1.31416,0.5447,0.42537,0.4448,0.2975,1.26862,1.37451,1.24336,0.00043,0.00043,0.00043
+zoom,0.5,Dataset_zoom_p05,/users/PAS2119/darklord/CVfinalproject/AugmentationProject/runs,coco_zoom_p05,30,2976.12,1.15253,1.17602,1.19352,0.5796,0.43446,0.46434,0.32125,1.19745,1.32579,1.20291,0.00043,0.00043,0.00043
+crop,0.5,Dataset_crop_p05,/users/PAS2119/darklord/CVfinalproject/AugmentationProject/runs,coco_crop_p05,30,2944.95,1.13524,1.20329,1.23169,0.56252,0.43756,0.46091,0.3203,1.19576,1.32728,1.20566,0.00043,0.00043,0.00043

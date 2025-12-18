@@ -5,6 +5,12 @@ import argparse
 import json
 import re
 
+'''
+Augments a yolo dataset for the provided augmentation, only modifying train. 
+Creats a new data.yaml for training, using the unmodified val.
+'''
+
+# To add augmentations, and an option to build transform and the arg choice 
 
 ### Hardcoded source YAML (will copy everything and only modify train)
 SOURCE_DATA_YAML = Path(r"S:\AugProject\kitti_rf_detr\train\rfdetr_dataset\data.yaml")
@@ -13,7 +19,6 @@ SPLIT_DEFAULT = "train"
 COPIES_PER_IMAGE_DEFAULT = 1
 MIN_VISIBILITY_DEFAULT = 0.3
 IMGSZ_DEFAULT = 640
-
 
 def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
     bbox_params_geo = A.BboxParams(
@@ -26,25 +31,6 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
         label_fields=["class_labels"],
     )
 
-    # Composite: Contrast + Sharpness
-    if aug == "combo_cs":
-        return A.Compose(
-            [
-                A.RandomBrightnessContrast(
-                    brightness_limit=0.0,
-                    contrast_limit=0.2,
-                    p=p,
-                ),
-                A.Sharpen(
-                    alpha=(0.1, 0.3),
-                    lightness=(0.7, 1.3),
-                    p=p,
-                ),
-            ],
-            bbox_params=bbox_params_photo,
-        )
-
-    # HSV jitter (color/illumination shifts)
     if aug == "hsv":
         return A.Compose(
             [
@@ -58,7 +44,6 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
             bbox_params=bbox_params_photo,
         )
 
-    # Exposure response / gamma
     if aug == "gamma":
         return A.Compose(
             [
@@ -70,7 +55,6 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
             bbox_params=bbox_params_photo,
         )
 
-    # Local contrast equalization
     if aug == "clahe":
         return A.Compose(
             [
@@ -83,7 +67,6 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
             bbox_params=bbox_params_photo,
         )
 
-    # Mild sensor noise
     if aug == "gauss_noise":
         return A.Compose(
             [
@@ -96,7 +79,6 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
             bbox_params=bbox_params_photo,
         )
 
-    # Realistic small motion blur
     if aug == "motion_blur_small":
         return A.Compose(
             [
@@ -108,7 +90,6 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
             bbox_params=bbox_params_photo,
         )
 
-    # Tiny camera jitter
     if aug == "affine_small":
         return A.Compose(
             [
@@ -228,26 +209,17 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
 
     raise ValueError("Unknown aug")
 
+# Writes a yaml for the augmented dataset with the modified train and original val dir.
 def write_modified_data_yaml(output_root: Path):
-    """
-    Writes YAML ONE LEVEL ABOVE output_root (the folder that contains Dataset/ and Dataset_<aug>_pX/).
-
-    Output file name:
-      <output_root.parent>/data_<output_root.name>.yaml
-
-    Contents:
-      train: <output_root.name>/images/train
-      val:   Dataset/images/val    (original, unaugmented)
-    """
     if not SOURCE_DATA_YAML.exists():
         raise FileNotFoundError(f"Source data.yaml not found: {SOURCE_DATA_YAML}")
 
-    ds_name = output_root.name  # e.g. Dataset_rotate_p10
-    parent = output_root.parent  # contains Dataset/ and Dataset_rotate_p10/
+    ds_name = output_root.name 
+    parent = output_root.parent
 
     text = SOURCE_DATA_YAML.read_text(encoding="utf-8")
 
-    # Train points to augmented dataset folder (relative to parent)
+    # Train points to augmented dataset folder
     text = re.sub(
         r"^(train:\s*)Dataset/.*$",
         rf"\1{ds_name}/images/train",
@@ -255,7 +227,7 @@ def write_modified_data_yaml(output_root: Path):
         flags=re.MULTILINE,
     )
 
-    # Val always points to original Dataset (relative to parent)
+    # Val always points to original Dataset val
     text = re.sub(
         r"^(val:\s*)Dataset/.*$",
         r"\1Dataset/images/val",
@@ -267,11 +239,11 @@ def write_modified_data_yaml(output_root: Path):
     out_yaml.write_text(text, encoding="utf-8")
     return out_yaml
 
+### Helpers
 
 def yolo_to_xyxy(box):
     xc, yc, w, h = box
     return [xc - w / 2.0, yc - h / 2.0, xc + w / 2.0, yc + h / 2.0]
-
 
 def xyxy_to_yolo(box):
     x1, y1, x2, y2 = box
@@ -279,10 +251,8 @@ def xyxy_to_yolo(box):
     h = max(0.0, y2 - y1)
     return [x1 + w / 2.0, y1 + h / 2.0, w, h]
 
-
 def clamp01(v):
     return 0.0 if v < 0.0 else (1.0 if v > 1.0 else v)
-
 
 def sanitize_xyxy(box, eps=1e-9):
     x1, y1, x2, y2 = box
@@ -293,7 +263,6 @@ def sanitize_xyxy(box, eps=1e-9):
     if x2 <= x1 + eps or y2 <= y1 + eps:
         return None
     return [x1, y1, x2, y2]
-
 
 def load_yolo_labels(txt_path: Path):
     boxes_xyxy, labels = [], []
@@ -311,7 +280,6 @@ def load_yolo_labels(txt_path: Path):
         boxes_xyxy.append(xyxy)
         labels.append(cls)
     return boxes_xyxy, labels
-
 
 def save_yolo_labels(txt_path: Path, boxes_xyxy, labels):
     lines = []

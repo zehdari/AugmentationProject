@@ -4,42 +4,39 @@ import shutil
 from pathlib import Path
 from PIL import Image
 
+'''Converts kitti dataset bbox 2d left to yolo style .txt format and handles train/val, and optional test split.'''
+
 # Paths
-KITTI_ROOT = Path(r"S:\AugProject\kitti_rf_detr\train")
+KITTI_ROOT = Path(r"Your kitti root here")
 IMG_DIR = KITTI_ROOT / "image_2"
 LBL_DIR = KITTI_ROOT / "label_2"
 IMAGESETS_DIR = KITTI_ROOT / "ImageSets"
 
 # Output dataset root
-RFDETR_ROOT = KITTI_ROOT / "rfdetr_dataset"
+OUTPUT_ROOT = KITTI_ROOT / "your output root"
 
-# Split config (80/10/10)
+# Train/val split config (80/20)
 SPLIT_SEED = 42
 TRAIN_RATIO = 0.8
-VALID_RATIO = 0.1  # remaining 0.1 goes to test
+VALID_RATIO = 0.2
 
 # Image move strategy
-MOVE_MODE = "copy"
+MOVE_MODE = "copy" # can be symlink 
 
-# Classes
+# Classes (kitti classes)
 KEEP_CLASSES = ["Car", "Van", "Truck", "Pedestrian", "Person_sitting", "Cyclist", "Tram", "Misc"]
 SKIP_CLASSES = {"DontCare"}
 
 CATEGORIES = [{"id": i + 1, "name": name, "supercategory": "kitti"} for i, name in enumerate(KEEP_CLASSES)]
 CAT_ID = {c["name"]: c["id"] for c in CATEGORIES}
 
-
 def get_all_image_stems():
     stems = [p.stem for p in IMG_DIR.glob("*.png")]
     stems += [p.stem for p in IMG_DIR.glob("*.jpg")]
     return sorted(set(stems))
 
-
+# Creates train/val/test splits for yolo
 def ensure_random_split_files():
-    """
-    Create deterministic 80/10/10 train/valid/test splits once and persist them
-    under ImageSets/ as train.txt, valid.txt, test.txt.
-    """
     IMAGESETS_DIR.mkdir(parents=True, exist_ok=True)
 
     train_file = IMAGESETS_DIR / "train.txt"
@@ -65,13 +62,6 @@ def ensure_random_split_files():
     valid_ids = ids[n_train:n_train + n_valid]
     test_ids = ids[n_train + n_valid:]
 
-    # Guard against weird rounding issues on very small datasets
-    if len(train_ids) == 0 or len(valid_ids) == 0 or len(test_ids) == 0:
-        raise RuntimeError(
-            f"Split produced empty set(s): train={len(train_ids)}, valid={len(valid_ids)}, test={len(test_ids)} "
-            f"(n={n}). Adjust ratios."
-        )
-
     train_file.write_text("\n".join(train_ids) + "\n")
     valid_file.write_text("\n".join(valid_ids) + "\n")
     test_file.write_text("\n".join(test_ids) + "\n")
@@ -83,13 +73,14 @@ def ensure_random_split_files():
     print(f"     seed={SPLIT_SEED}, ratios={TRAIN_RATIO}/{VALID_RATIO}/{1.0-TRAIN_RATIO-VALID_RATIO:.1f}")
 
 
+### Helpers
+
 def load_split_ids(split_name: str):
     ensure_random_split_files()
     split_file = IMAGESETS_DIR / f"{split_name}.txt"
     if not split_file.exists():
         raise FileNotFoundError(f"Missing split file: {split_file}")
     return [line.strip() for line in split_file.read_text().splitlines() if line.strip()]
-
 
 def kitti_line_to_bbox(line: str):
     parts = line.strip().split()
@@ -99,7 +90,6 @@ def kitti_line_to_bbox(line: str):
     xmin, ymin, xmax, ymax = map(float, parts[4:8])
     return cls, xmin, ymin, xmax, ymax
 
-
 def find_image_path(stem: str):
     png = IMG_DIR / f"{stem}.png"
     if png.exists():
@@ -108,7 +98,6 @@ def find_image_path(stem: str):
     if jpg.exists():
         return jpg
     return None
-
 
 def link_or_copy(src: Path, dst: Path):
     dst.parent.mkdir(parents=True, exist_ok=True)
@@ -121,12 +110,9 @@ def link_or_copy(src: Path, dst: Path):
     else:
         raise ValueError("MOVE_MODE must be 'copy' or 'symlink'")
 
-
+# Writes out_dir/_annotations.coco.json and places images in out_dir/
 def build_coco_for_split(split_name: str, out_dir: Path):
-    """
-    Writes out_dir/_annotations.coco.json and places images in out_dir/.
-    COCO 'file_name' is just the basename (since json lives in same folder).
-    """
+    
     image_ids = load_split_ids(split_name)
 
     coco = {
@@ -163,6 +149,7 @@ def build_coco_for_split(split_name: str, out_dir: Path):
             "height": height,
         })
 
+        # Handle the labels
         lbl_path = LBL_DIR / f"{stem}.txt"
         if lbl_path.exists():
             for line in lbl_path.read_text().splitlines():
@@ -204,9 +191,9 @@ def build_coco_for_split(split_name: str, out_dir: Path):
 
 
 if __name__ == "__main__":
-    train_dir = RFDETR_ROOT / "train"
-    valid_dir = RFDETR_ROOT / "valid"
-    test_dir = RFDETR_ROOT / "test"
+    train_dir = OUTPUT_ROOT / "train"
+    valid_dir = OUTPUT_ROOT / "valid"
+    test_dir = OUTPUT_ROOT / "test"
 
     train_dir.mkdir(parents=True, exist_ok=True)
     valid_dir.mkdir(parents=True, exist_ok=True)
@@ -216,8 +203,5 @@ if __name__ == "__main__":
     build_coco_for_split("valid", valid_dir)
     build_coco_for_split("test", test_dir)
 
-    print(f"[done] RF-DETR dataset at: {RFDETR_ROOT}")
+    print(f"[done] Output dataset at: {OUTPUT_ROOT}")
     print(f"       move mode: {MOVE_MODE}")
-
-#AUGS = ["hsv", "gamma", "clahe", "gauss_noise", "motion_blur_small", "affine_small","mirror", "rotate", "zoom", "crop", "brightness", "contrast", "sharpness", "blur", "dropout"]
-AUGS = ["hsv", "gamma", "clahe", "gauss_noise", "motion_blur_small", "affine_small"]

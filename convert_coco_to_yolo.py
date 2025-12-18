@@ -2,8 +2,10 @@ import json
 import shutil
 from pathlib import Path
 
+'''Converts coco dataset to yolo style folder structure and labels'''
+
 # Input dataset root that contains split folders: train/, valid/, test/
-DATASET_ROOT = Path(r"S:\AugProject\kitti_rf_detr\train\rfdetr_dataset")
+DATASET_ROOT = Path(r"Your coco dataset root here")
 
 # Output root
 OUT_ROOT = DATASET_ROOT
@@ -11,13 +13,13 @@ OUT_ROOT = DATASET_ROOT
 SPLITS = ["train", "valid", "test"]
 SPLIT_NAME_MAP = {"valid": "val"}   # output naming
 
-WRITE_EMPTY_LABELS = True
-SKIP_MISSING_IMAGES = False
+WRITE_EMPTY_LABELS = True # For background images, empty .txt for that image
+SKIP_MISSING_IMAGES = False # Will keep going if an image isnt presen't rather than error out if true
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp"}
 
+# COCO bbox [x,y,w,h] to YOLO [xc,yc,w,h] normalized
 def coco_to_yolo_box(bbox, img_w, img_h):
-    """COCO bbox [x,y,w,h] -> YOLO [xc,yc,w,h] normalized."""
     x, y, w, h = bbox
     xc = x + w / 2.0
     yc = y + h / 2.0
@@ -43,13 +45,8 @@ def resolve_image_path(split_dir: Path, file_name: str) -> Path | None:
 
     return None
 
+# Build one consistent COCO to yolo idx mapping
 def load_categories_for_consistent_mapping():
-    """
-    Build one consistent (COCO cat_id -> YOLO index) mapping (prefer train split).
-    Returns:
-      cat_id_to_yolo: dict
-      cats_sorted: list of categories sorted by COCO id
-    """
     preferred = DATASET_ROOT / "train" / "_annotations.coco.json"
     ann = preferred if preferred.exists() else None
 
@@ -68,15 +65,8 @@ def load_categories_for_consistent_mapping():
     cat_id_to_yolo = {c["id"]: i for i, c in enumerate(cats_sorted)}
     return cat_id_to_yolo, cats_sorted
 
+# Writes the data.yaml in yolo format
 def write_data_yaml(out_root: Path, cats_sorted: list, have_test: bool):
-    """
-    Writes data.yaml like:
-      train: Dataset/images/train
-      val: Dataset/images/val
-      test: Dataset/images/test
-      nc: N
-      names: [...]
-    """
     names = [c.get("name", f"class{i}") for i, c in enumerate(cats_sorted)]
     nc = len(names)
 
@@ -155,6 +145,8 @@ def main():
 
                 bbox = ann["bbox"]
                 _, _, w, h = bbox
+
+                # Shouldn't happen but sanity check
                 if w <= 0 or h <= 0:
                     continue
 

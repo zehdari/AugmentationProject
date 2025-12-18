@@ -1,6 +1,11 @@
 import subprocess
 from pathlib import Path
 import csv
+import sys
+import shutil
+
+# Executable for running the commands
+PY = sys.executable
 
 ### CONFIG
 
@@ -22,9 +27,13 @@ YOLO_PROJECT = Path(r"runs\kitti")  # relative is fine
 # Master metrics CSV (will append resutls)
 METRICS_CSV = HERE / "aug_results.csv"
 
+# Which augmentations to sweep, defined in make_aug_dataset.py
 AUGS = ["mirror","hsv", "gamma", "clahe", "gauss_noise", "motion_blur_small", "affine_small", "rotate", "zoom", "crop", "brightness", "contrast", "sharpness", "blur", "dropout"]
-#AUGS = ["hsv", "gamma", "clahe", "gauss_noise", "motion_blur_small", "affine_small"]
+
+# Probabilities to sweep (1 <= p <= 0)
 PS = [1.0, 0.5, 0.25]
+
+# Image size used in some augmentations (to match yolo11n input)
 IMGSZ = 640
 
 RUN_CONTROL_FIRST = False
@@ -36,13 +45,6 @@ DELETE_AUG_YAML_AFTER_RUN = False
 def run_cmd(cmd: str):
     print("\n>>>", cmd)
     subprocess.run(cmd, shell=True, check=True)
-
-def conda_cmd(env: str, inner_cmd: str) -> str:
-    """
-    Run inner_cmd inside a conda env, in ONE cmd.exe session.
-    /d lets cmd run even if AutoRun is configured.
-    """
-    return f'cmd.exe /d /c "conda deactivate && conda activate {env} && {inner_cmd}"'
 
 def csv_last_row(path: Path) -> dict:
     """
@@ -76,10 +78,9 @@ def main():
     if not TRAIN_SCRIPT.exists():
         raise FileNotFoundError(f"Could not find {TRAIN_SCRIPT} (expected next to this runner)")
 
+    # Optional initial control run
     if RUN_CONTROL_FIRST:
-        print("\n" + "=" * 80)
         print("RUNNING: CONTROL (base dataset, no augmentation)")
-        print("=" * 80)
 
         dataset_name = "Dataset_control"
         data_yaml = DATASET_PARENT / "data.yaml"
@@ -88,16 +89,15 @@ def main():
         run_dir = Path(YOLO_PROJECT) / run_name
         results_csv = run_dir / "results.csv"
 
-        # 2) Train in yolo env
-        train_cmd = (
-            f'python "{TRAIN_SCRIPT}" '
-            f'--data "{data_yaml}" '
-            f'--project "{YOLO_PROJECT}" '
-            f'--name "{run_name}"'
-        )
-        run_cmd(conda_cmd(TRAIN_ENV, train_cmd))
+        # Train in yolo env
+        run_cmd([
+            PY, str(TRAIN_SCRIPT),
+            "--data", str(data_yaml),
+            "--project", str(YOLO_PROJECT),
+            "--name", run_name,
+        ])
 
-        # 3) Collect metrics (last row of results.csv) and append
+        # Collect metrics (last row (epoch) of results.csv) and append
         print("Collecting metrics from:", results_csv)
         final = csv_last_row(results_csv)
 
@@ -113,12 +113,10 @@ def main():
         print(f"Appended metrics to {METRICS_CSV}")
 
     for p in PS:
-        p_tag = str(p).replace(".", "")  # 1.0->10, 0.5->05, 0.25->025
+        p_tag = str(p).replace(".", "")
 
         for aug in AUGS:
-            print("\n" + "=" * 80)
             print(f"RUNNING: aug={aug}, p={p}")
-            print("=" * 80)
 
             dataset_name = f"Dataset_{aug}_p{p_tag}"
             output_dataset = DATASET_PARENT / dataset_name
@@ -128,35 +126,29 @@ def main():
             run_dir = Path(YOLO_PROJECT) / run_name
             results_csv = run_dir / "results.csv"
 
-            # If run exists skip all
-            if run_dir.exists():
-                print(f"Skipping run entirely (run exists): {run_dir}")
-                continue
-
             # If augmented dataset exists, skip augmentation only
+            # Otherwise augment
             if output_dataset.exists():
                 print(f"Skipping augmentation (dataset exists): {output_dataset}")
             else:
-                aug_cmd = (
-                    f'python "{AUG_SCRIPT}" '
-                    f'--input_root "{BASE_DATASET}" '
-                    f'--output_root "{output_dataset}" '
-                    f'--aug {aug} '
-                    f'--p {p} '
-                    f'--imgsz {IMGSZ}'
-                )
-                run_cmd(conda_cmd(AUG_ENV, aug_cmd))
+                run_cmd([
+                    PY, str(AUG_SCRIPT),
+                    "--input_root", str(BASE_DATASET),
+                    "--output_root", str(output_dataset),
+                    "--aug", aug,
+                    "--p", str(p),
+                    "--imgsz", str(IMGSZ),
+                ])
 
             # Train
-            train_cmd = (
-                f'python "{TRAIN_SCRIPT}" '
-                f'--data "{data_yaml}" '
-                f'--project "{YOLO_PROJECT}" '
-                f'--name "{run_name}"'
-            )
-            run_cmd(conda_cmd(TRAIN_ENV, train_cmd))
+            run_cmd([
+                PY, str(TRAIN_SCRIPT),
+                "--data", str(data_yaml),
+                "--project", str(YOLO_PROJECT),
+                "--name", run_name,
+            ])
 
-            # 3) Collect metrics (last row of results.csv) and append
+            # Collect metrics (last row of results.csv) and append
             print("Collecting metrics from:", results_csv)
             final = csv_last_row(results_csv)
 
@@ -171,21 +163,14 @@ def main():
             append_metrics(record)
             print(f"Appended metrics to {METRICS_CSV}")
 
+            # Optional cleanup
             if DELETE_AUG_DATASET_AFTER_RUN:
-                try:
-                    import shutil
-                    shutil.rmtree(output_dataset)
-                    print(f"Deleted augmented dataset folder: {output_dataset}")
-                except Exception as e:
-                    print(f"Warning: failed to delete dataset folder {output_dataset}: {e}")
+                shutil.rmtree(output_dataset)
+                print(f"Deleted augmented dataset folder: {output_dataset}")
 
-            if DELETE_AUG_YAML_AFTER_RUN:
-                try:
-                    if data_yaml.exists():
-                        data_yaml.unlink()
-                        print(f"Deleted augmented yaml: {data_yaml}")
-                except Exception as e:
-                    print(f"Warning: failed to delete yaml {data_yaml}: {e}")
+            if DELETE_AUG_YAML_AFTER_RUN and data_yaml.exists():
+                data_yaml.unlink()
+                print(f"Deleted augmented yaml: {data_yaml}")
 
     print("\nALL EXPERIMENTS COMPLETE")
 

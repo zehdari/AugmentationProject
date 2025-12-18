@@ -36,9 +36,11 @@ PS = [1.0, 0.5, 0.25]
 # Image size used in some augmentations (to match yolo11n input)
 IMGSZ = 640
 
-RUN_CONTROL_FIRST = False
-DELETE_AUG_DATASET_AFTER_RUN = False
-DELETE_AUG_YAML_AFTER_RUN = False
+RUN_CONTROL_FIRST = True
+
+# Cleanup (so you don't run out of disk space)
+DELETE_AUG_DATASET_AFTER_RUN = True
+DELETE_AUG_YAML_AFTER_RUN = True
 
 ### Helpers
 

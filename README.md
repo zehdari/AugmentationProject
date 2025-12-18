@@ -10,7 +10,7 @@ Tested using python 3.13.9
 pyenv install 3.13.9
 pyenv virtualenv 3.13.9 venv
 pyenv activate venv
-pip install albumentationsx rfdetr
+pip install albumentationsx ultralytics pillow opencv-python
 ```
 
 ## Running the scripts

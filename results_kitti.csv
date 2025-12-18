@@ -1,6 +1,5 @@
 aug,p,dataset,project,run_name,epoch,time,train/box_loss,train/cls_loss,train/dfl_loss,metrics/precision(B),metrics/recall(B),metrics/mAP50(B),metrics/mAP50-95(B),val/box_loss,val/cls_loss,val/dfl_loss,lr/pg0,lr/pg1,lr/pg2
 control,0.0,Dataset,runs\kitti,kitti_control,30,1083.11,0.79324,0.50219,0.89701,0.86108,0.74647,0.85058,0.61215,0.81303,0.5048,0.90224,3.5819e-05,3.5819e-05,3.5819e-05
-yolo_default_aug,0.0,Dataset,runs\kitti,kitti_control_default_aug,30,1083.7,0.79324,0.50219,0.89701,0.86108,0.74647,0.85058,0.61215,0.81303,0.5048,0.90224,3.5819e-05,3.5819e-05,3.5819e-05
 mirror,1.0,Dataset_mirror_p10,runs\kitti,kitti_mirror_p1.0,30,1068.3,0.78524,0.49796,0.89469,0.86594,0.76123,0.85326,0.61394,0.81283,0.50734,0.89852,3.5819e-05,3.5819e-05,3.5819e-05
 rotate,1.0,Dataset_rotate_p10,runs\kitti,kitti_rotate_p1.0,30,1065.16,0.89718,0.62823,0.9557,0.82087,0.66574,0.75953,0.49119,1.04865,0.63959,0.95572,3.5819e-05,3.5819e-05,3.5819e-05
 zoom,1.0,Dataset_zoom_p10,runs\kitti,kitti_zoom_p1.0,30,1051.83,0.82182,0.52206,0.90499,0.83751,0.73991,0.82929,0.58793,0.8444,0.52742,0.90932,3.5819e-05,3.5819e-05,3.5819e-05

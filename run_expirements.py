@@ -18,11 +18,11 @@ AUG_SCRIPT = HERE / "make_aug_dataset.py"
 TRAIN_SCRIPT = HERE / "train_yolo.py"
 
 # Dataset roots
-BASE_DATASET = Path(r"S:\AugProject\kitti_rf_detr\train\rfdetr_dataset\Dataset")
-DATASET_PARENT = Path(r"S:\AugProject\kitti_rf_detr\train\rfdetr_dataset")
+BASE_DATASET = Path(r"Yolo dataset here")
+DATASET_PARENT = BASE_DATASET.parent
 
 # YOLO project directory
-YOLO_PROJECT = Path(r"runs\kitti")  # relative is fine
+YOLO_PROJECT = Path(r"your run dir here")  # relative is fine
 
 # Master metrics CSV (will append resutls)
 METRICS_CSV = HERE / "aug_results.csv"
@@ -45,12 +45,9 @@ DELETE_AUG_YAML_AFTER_RUN = False
 def run_cmd(cmd: str):
     print("\n>>>", cmd)
     subprocess.run(cmd, shell=True, check=True)
-
+    
+# Read a CSV and return the last row as dict (works for Ultralytics results.csv)
 def csv_last_row(path: Path) -> dict:
-    """
-    Read a CSV and return the last row as dict.
-    (works for Ultralytics results.csv)
-    """
     if not path.exists():
         raise FileNotFoundError(f"results.csv not found: {path}")
 

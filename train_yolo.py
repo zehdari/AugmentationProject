@@ -46,5 +46,5 @@ def main():
     )
 
 if __name__ == "__main__":
-    mp.freeze_support()  # Important if you want to run on a windows machine, otherwise won't matter
+    mp.freeze_support()  # Important if you want to run on a windows machine, otherwise shouldn't matter
     main()

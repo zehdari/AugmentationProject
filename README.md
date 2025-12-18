@@ -2,19 +2,17 @@
 
 ## Setup
 
-Tested using python 3.13.9
-
-### Using penv
+### Using venv
 
 ```bash
-pyenv install 3.13.9
-pyenv virtualenv 3.13.9 venv
-pyenv activate venv
-pip install albumentationsx ultralytics pillow opencv-python
+python3 -m venv aug_venv
+source ./aug_venv/bin/activate
+pip install albumentationsx ultralytics pillow opencv-python pyyaml
 ```
 
 ### Experiments runs
 The runs including all models trained for the project can be downloaded as a zip file [here]()
+
 ### Dataset
 
 This was tested using the [KITTI 2d left train](https://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=2d) and [coco-minitrain](https://github.com/giddyyupp/coco-minitrain) datasets
@@ -32,7 +30,8 @@ pip install gdown
 gdown https://drive.google.com/uc?id=11m1htBVId8jpAd4E16GaqzXKcPrAFjTw
 ```
 
-- The coco-minitrain dataset can be downloaded using:
+- The coco-minitrain dataset can be downloaded using: [here](https://huggingface.co/datasets/bryanbocao/coco_minitrain/resolve/main/coco_minitrain_25k.zip)
+
 ```bash
 gdown https://drive.google.com/uc?id=11m1htBVId8jpAd4E16GaqzXKcPrAFjTw
 ```
@@ -41,11 +40,8 @@ gdown https://drive.google.com/uc?id=11m1htBVId8jpAd4E16GaqzXKcPrAFjTw
 
 ## Configure the sweep
 
-The augmentation sweep can be configured in `run_experiments.py`. You can choose the probabilites of application, and which augmentations to perform, as well as run a control and handle cleanup.
-
-The fixed training parameters for the yolo model can be configured in `train_yolo.py`.
-
-The fixed augmentation strengths can be modified in `make_aug_dataset.py`. Additional augmentations can also be added here.
+Provide the paths to the dataset, data.yaml, and where you want the runs to be output in `config.py`
+Other configurations can be done for the sweep and the model here.
 
 ## Running the sweep
 

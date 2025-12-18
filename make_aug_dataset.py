@@ -207,7 +207,7 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
 
     raise ValueError("Unknown aug")
 
-# Writes a yaml for the augmented dataset with the modified train and original val dir.
+# Writes a yaml for the augmented dataset with the modified train and original val dir
 def write_modified_data_yaml(output_root: Path):
     if not SOURCE_DATA_YAML.exists():
         raise FileNotFoundError(f"Source data.yaml not found: {SOURCE_DATA_YAML}")
@@ -215,12 +215,10 @@ def write_modified_data_yaml(output_root: Path):
     cfg = yaml.safe_load(SOURCE_DATA_YAML.read_text(encoding="utf-8")) or {}
 
     # Make train come from the augmented dataset
-    # (output_root is the dataset root that contains images/train, labels/train, etc.)
     cfg["path"] = str(output_root.resolve())
     cfg["train"] = "images/train"
 
-    # Keep val coming from the *original* dataset
-    # Ultralytics allows val to be absolute; that’s simplest here.
+    # Keep val coming from the original dataset
     cfg["val"] = str((BASE_DATASET / "images" / "val").resolve())
 
     out_yaml = output_root.parent / f"data_{output_root.name}.yaml"

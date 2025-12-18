@@ -94,7 +94,7 @@ def main():
 
             dataset_name = f"Dataset_{aug}_p{p_tag}"
             output_dataset = DATASET_PARENT / dataset_name
-            data_yaml = output_dataset.parent / f"data_{output_dataset.name}.yaml"
+            data_yaml = output_dataset / f"data_{output_dataset.name}.yaml"
 
             run_name = f"kitti_{aug}_p{p}"
             run_dir = Path(YOLO_PROJECT) / run_name

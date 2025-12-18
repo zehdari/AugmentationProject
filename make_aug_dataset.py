@@ -221,7 +221,7 @@ def write_modified_data_yaml(output_root: Path):
     # Keep val coming from the original dataset
     cfg["val"] = str((BASE_DATASET / "images" / "val").resolve())
 
-    out_yaml = output_root.parent / f"data_{output_root.name}.yaml"
+    out_yaml = output_root / f"data_{output_root.name}.yaml"
     out_yaml.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
     return out_yaml
 

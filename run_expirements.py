@@ -22,8 +22,8 @@ YOLO_PROJECT = Path(r"runs\kitti")  # relative is fine
 # Master metrics CSV (will append resutls)
 METRICS_CSV = HERE / "aug_results.csv"
 
-#AUGS = ["rotate", "zoom", "crop", "brightness", "contrast", "sharpness", "blur", "dropout"]
-AUGS = ["mirror"]
+AUGS = ["mirror","hsv", "gamma", "clahe", "gauss_noise", "motion_blur_small", "affine_small", "rotate", "zoom", "crop", "brightness", "contrast", "sharpness", "blur", "dropout"]
+#AUGS = ["hsv", "gamma", "clahe", "gauss_noise", "motion_blur_small", "affine_small"]
 PS = [1.0, 0.5, 0.25]
 IMGSZ = 640
 
@@ -128,18 +128,26 @@ def main():
             run_dir = Path(YOLO_PROJECT) / run_name
             results_csv = run_dir / "results.csv"
 
-            # 1) Augment in augment env
-            aug_cmd = (
-                f'python "{AUG_SCRIPT}" '
-                f'--input_root "{BASE_DATASET}" '
-                f'--output_root "{output_dataset}" '
-                f'--aug {aug} '
-                f'--p {p} '
-                f'--imgsz {IMGSZ}'
-            )
-            run_cmd(conda_cmd(AUG_ENV, aug_cmd))
+            # If run exists skip all
+            if run_dir.exists():
+                print(f"Skipping run entirely (run exists): {run_dir}")
+                continue
 
-            # 2) Train in yolo env
+            # If augmented dataset exists, skip augmentation only
+            if output_dataset.exists():
+                print(f"Skipping augmentation (dataset exists): {output_dataset}")
+            else:
+                aug_cmd = (
+                    f'python "{AUG_SCRIPT}" '
+                    f'--input_root "{BASE_DATASET}" '
+                    f'--output_root "{output_dataset}" '
+                    f'--aug {aug} '
+                    f'--p {p} '
+                    f'--imgsz {IMGSZ}'
+                )
+                run_cmd(conda_cmd(AUG_ENV, aug_cmd))
+
+            # Train
             train_cmd = (
                 f'python "{TRAIN_SCRIPT}" '
                 f'--data "{data_yaml}" '

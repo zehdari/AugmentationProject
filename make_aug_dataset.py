@@ -14,6 +14,7 @@ COPIES_PER_IMAGE_DEFAULT = 1
 MIN_VISIBILITY_DEFAULT = 0.3
 IMGSZ_DEFAULT = 640
 
+
 def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
     bbox_params_geo = A.BboxParams(
         format="albumentations",
@@ -25,12 +26,110 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
         label_fields=["class_labels"],
     )
 
+    # Composite: Contrast + Sharpness
+    if aug == "combo_cs":
+        return A.Compose(
+            [
+                A.RandomBrightnessContrast(
+                    brightness_limit=0.0,
+                    contrast_limit=0.2,
+                    p=p,
+                ),
+                A.Sharpen(
+                    alpha=(0.1, 0.3),
+                    lightness=(0.7, 1.3),
+                    p=p,
+                ),
+            ],
+            bbox_params=bbox_params_photo,
+        )
+
+    # HSV jitter (color/illumination shifts)
+    if aug == "hsv":
+        return A.Compose(
+            [
+                A.HueSaturationValue(
+                    hue_shift_limit=5,
+                    sat_shift_limit=15,
+                    val_shift_limit=10,
+                    p=p,
+                )
+            ],
+            bbox_params=bbox_params_photo,
+        )
+
+    # Exposure response / gamma
+    if aug == "gamma":
+        return A.Compose(
+            [
+                A.RandomGamma(
+                    gamma_limit=(80, 120),
+                    p=p,
+                )
+            ],
+            bbox_params=bbox_params_photo,
+        )
+
+    # Local contrast equalization
+    if aug == "clahe":
+        return A.Compose(
+            [
+                A.CLAHE(
+                    clip_limit=(1.0, 3.0),
+                    tile_grid_size=(8, 8),
+                    p=p,
+                )
+            ],
+            bbox_params=bbox_params_photo,
+        )
+
+    # Mild sensor noise
+    if aug == "gauss_noise":
+        return A.Compose(
+            [
+                A.GaussNoise(
+                    var_limit=(5.0, 25.0),
+                    mean=0,
+                    p=p,
+                )
+            ],
+            bbox_params=bbox_params_photo,
+        )
+
+    # Realistic small motion blur
+    if aug == "motion_blur_small":
+        return A.Compose(
+            [
+                A.MotionBlur(
+                    blur_limit=3,
+                    p=p,
+                )
+            ],
+            bbox_params=bbox_params_photo,
+        )
+
+    # Tiny camera jitter
+    if aug == "affine_small":
+        return A.Compose(
+            [
+                A.Affine(
+                    scale=(0.98, 1.02),
+                    translate_percent=(-0.02, 0.02),
+                    rotate=(-2, 2),
+                    shear=(-2, 2),
+                    border_mode=cv2.BORDER_REFLECT_101,
+                    p=p,
+                )
+            ],
+            bbox_params=bbox_params_geo,
+        )
+
     if aug == "mirror":
         return A.Compose(
             [A.HorizontalFlip(p=p)],
             bbox_params=bbox_params_geo,
         )
-    
+
     if aug == "rotate":
         return A.Compose(
             [A.Rotate(limit=30, border_mode=cv2.BORDER_REFLECT_101, p=p)],
@@ -39,45 +138,53 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
 
     if aug == "zoom":
         return A.Compose(
-            [A.Affine(
-                scale=(0.8, 1.2),
-                translate_percent=0.0,
-                rotate=0,
-                shear=0,
-                border_mode=cv2.BORDER_REFLECT_101,
-                p=p,
-            )],
+            [
+                A.Affine(
+                    scale=(0.8, 1.2),
+                    translate_percent=0.0,
+                    rotate=0,
+                    shear=0,
+                    border_mode=cv2.BORDER_REFLECT_101,
+                    p=p,
+                )
+            ],
             bbox_params=bbox_params_geo,
         )
 
     if aug == "crop":
         return A.Compose(
-            [A.RandomSizedBBoxSafeCrop(
-                height=imgsz,
-                width=imgsz,
-                erosion_rate=0.05,
-                p=p,
-            )],
+            [
+                A.RandomSizedBBoxSafeCrop(
+                    height=imgsz,
+                    width=imgsz,
+                    erosion_rate=0.05,
+                    p=p,
+                )
+            ],
             bbox_params=bbox_params_geo,
         )
 
     if aug == "brightness":
         return A.Compose(
-            [A.RandomBrightnessContrast(
-                brightness_limit=0.2,
-                contrast_limit=0.0,
-                p=p,
-            )],
+            [
+                A.RandomBrightnessContrast(
+                    brightness_limit=0.2,
+                    contrast_limit=0.0,
+                    p=p,
+                )
+            ],
             bbox_params=bbox_params_photo,
         )
 
     if aug == "contrast":
         return A.Compose(
-            [A.RandomBrightnessContrast(
-                brightness_limit=0.0,
-                contrast_limit=0.2,
-                p=p,
-            )],
+            [
+                A.RandomBrightnessContrast(
+                    brightness_limit=0.0,
+                    contrast_limit=0.2,
+                    p=p,
+                )
+            ],
             bbox_params=bbox_params_photo,
         )
 
@@ -89,29 +196,33 @@ def build_transform(aug: str, p: float, imgsz: int, min_visibility: float):
 
     if aug == "blur":
         return A.Compose(
-            [A.OneOf(
-                [
-                    A.MotionBlur(blur_limit=7, p=1.0),
-                    A.GaussianBlur(blur_limit=(3, 7), p=1.0),
-                    A.MedianBlur(blur_limit=5, p=1.0),
-                ],
-                p=p,
-            )],
+            [
+                A.OneOf(
+                    [
+                        A.MotionBlur(blur_limit=7, p=1.0),
+                        A.GaussianBlur(blur_limit=(3, 7), p=1.0),
+                        A.MedianBlur(blur_limit=5, p=1.0),
+                    ],
+                    p=p,
+                )
+            ],
             bbox_params=bbox_params_photo,
         )
 
     if aug == "dropout":
         return A.Compose(
-            [A.CoarseDropout(
-                max_holes=8,
-                max_height=int(0.2 * imgsz),
-                max_width=int(0.2 * imgsz),
-                min_holes=1,
-                min_height=int(0.05 * imgsz),
-                min_width=int(0.05 * imgsz),
-                fill_value=0,
-                p=p,
-            )],
+            [
+                A.CoarseDropout(
+                    max_holes=8,
+                    max_height=int(0.2 * imgsz),
+                    max_width=int(0.2 * imgsz),
+                    min_holes=1,
+                    min_height=int(0.05 * imgsz),
+                    min_width=int(0.05 * imgsz),
+                    fill_value=0,
+                    p=p,
+                )
+            ],
             bbox_params=bbox_params_photo,
         )
 
@@ -132,7 +243,7 @@ def write_modified_data_yaml(output_root: Path):
         raise FileNotFoundError(f"Source data.yaml not found: {SOURCE_DATA_YAML}")
 
     ds_name = output_root.name  # e.g. Dataset_rotate_p10
-    parent = output_root.parent # contains Dataset/ and Dataset_rotate_p10/
+    parent = output_root.parent  # contains Dataset/ and Dataset_rotate_p10/
 
     text = SOURCE_DATA_YAML.read_text(encoding="utf-8")
 
@@ -141,7 +252,7 @@ def write_modified_data_yaml(output_root: Path):
         r"^(train:\s*)Dataset/.*$",
         rf"\1{ds_name}/images/train",
         text,
-        flags=re.MULTILINE
+        flags=re.MULTILINE,
     )
 
     # Val always points to original Dataset (relative to parent)
@@ -149,7 +260,7 @@ def write_modified_data_yaml(output_root: Path):
         r"^(val:\s*)Dataset/.*$",
         r"\1Dataset/images/val",
         text,
-        flags=re.MULTILINE
+        flags=re.MULTILINE,
     )
 
     out_yaml = parent / f"data_{ds_name}.yaml"
@@ -159,24 +270,30 @@ def write_modified_data_yaml(output_root: Path):
 
 def yolo_to_xyxy(box):
     xc, yc, w, h = box
-    return [xc - w/2.0, yc - h/2.0, xc + w/2.0, yc + h/2.0]
+    return [xc - w / 2.0, yc - h / 2.0, xc + w / 2.0, yc + h / 2.0]
+
 
 def xyxy_to_yolo(box):
     x1, y1, x2, y2 = box
     w = max(0.0, x2 - x1)
     h = max(0.0, y2 - y1)
-    return [x1 + w/2.0, y1 + h/2.0, w, h]
+    return [x1 + w / 2.0, y1 + h / 2.0, w, h]
+
 
 def clamp01(v):
     return 0.0 if v < 0.0 else (1.0 if v > 1.0 else v)
 
+
 def sanitize_xyxy(box, eps=1e-9):
     x1, y1, x2, y2 = box
-    x1 = clamp01(x1); y1 = clamp01(y1)
-    x2 = clamp01(x2); y2 = clamp01(y2)
+    x1 = clamp01(x1)
+    y1 = clamp01(y1)
+    x2 = clamp01(x2)
+    y2 = clamp01(y2)
     if x2 <= x1 + eps or y2 <= y1 + eps:
         return None
     return [x1, y1, x2, y2]
+
 
 def load_yolo_labels(txt_path: Path):
     boxes_xyxy, labels = [], []
@@ -195,6 +312,7 @@ def load_yolo_labels(txt_path: Path):
         labels.append(cls)
     return boxes_xyxy, labels
 
+
 def save_yolo_labels(txt_path: Path, boxes_xyxy, labels):
     lines = []
     for cls, xyxy in zip(labels, boxes_xyxy):
@@ -204,12 +322,33 @@ def save_yolo_labels(txt_path: Path, boxes_xyxy, labels):
         lines.append(f"{cls} {xc:.6f} {yc:.6f} {w:.6f} {h:.6f}")
     txt_path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
 
+
 def main():
     ap = argparse.ArgumentParser("Generate an augmented TRAIN set (val stays original via data.yaml)")
     ap.add_argument("--input_root", required=True)
     ap.add_argument("--output_root", required=True)
-    ap.add_argument("--aug", required=True,
-                    choices=["mirror", "rotate", "zoom", "crop", "brightness", "contrast", "sharpness", "blur", "dropout"])
+    ap.add_argument(
+        "--aug",
+        required=True,
+        choices=[
+            "combo_cs",
+            "mirror",
+            "rotate",
+            "zoom",
+            "crop",
+            "brightness",
+            "contrast",
+            "sharpness",
+            "blur",
+            "dropout",
+            "hsv",
+            "gamma",
+            "clahe",
+            "gauss_noise",
+            "motion_blur_small",
+            "affine_small",
+        ],
+    )
     ap.add_argument("--p", type=float, default=1.0)
     ap.add_argument("--split", default="train")  # keep train only
     ap.add_argument("--copies", type=int, default=COPIES_PER_IMAGE_DEFAULT)
@@ -232,7 +371,6 @@ def main():
     print(f"Wrote data.yaml -> {out_yaml}")
     print(f"    train -> {output_root.name}/images/train")
     print(f"    val   -> Dataset/images/val (original)")
-
 
     transform = build_transform(args.aug, args.p, args.imgsz, args.min_visibility)
 

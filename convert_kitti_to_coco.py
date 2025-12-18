@@ -218,3 +218,6 @@ if __name__ == "__main__":
 
     print(f"[done] RF-DETR dataset at: {RFDETR_ROOT}")
     print(f"       move mode: {MOVE_MODE}")
+
+#AUGS = ["hsv", "gamma", "clahe", "gauss_noise", "motion_blur_small", "affine_small","mirror", "rotate", "zoom", "crop", "brightness", "contrast", "sharpness", "blur", "dropout"]
+AUGS = ["hsv", "gamma", "clahe", "gauss_noise", "motion_blur_small", "affine_small"]

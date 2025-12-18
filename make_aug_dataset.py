@@ -4,6 +4,7 @@ from pathlib import Path
 import argparse
 import json
 import re
+from path_configs import SOURCE_DATA_YAML
 
 '''
 Augments a yolo dataset for the provided augmentation, only modifying train. 
@@ -11,9 +12,6 @@ Creats a new data.yaml for training, using the unmodified val.
 '''
 
 # To add augmentations, and an option to build transform and the arg choice 
-
-### Hardcoded source YAML (will copy everything and only modify train)
-SOURCE_DATA_YAML = Path(r"S:\AugProject\kitti_rf_detr\train\rfdetr_dataset\data.yaml")
 
 SPLIT_DEFAULT = "train"
 COPIES_PER_IMAGE_DEFAULT = 1

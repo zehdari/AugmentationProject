@@ -3,44 +3,19 @@ from pathlib import Path
 import csv
 import sys
 import shutil
+from configs import *
 
 # Executable for running the commands
 PY = sys.executable
 
 ### CONFIG
 
-AUG_ENV = "augment"
-TRAIN_ENV = "yolov8_segmentation"
-
 # Where this runner lives (and where the scripts live)
 HERE = Path(__file__).resolve().parent
 AUG_SCRIPT = HERE / "make_aug_dataset.py"
 TRAIN_SCRIPT = HERE / "train_yolo.py"
 
-# Dataset roots
-BASE_DATASET = Path(r"Yolo dataset here")
 DATASET_PARENT = BASE_DATASET.parent
-
-# YOLO project directory
-YOLO_PROJECT = Path(r"your run dir here")  # relative is fine
-
-# Master metrics CSV (will append resutls)
-METRICS_CSV = HERE / "aug_results.csv"
-
-# Which augmentations to sweep, defined in make_aug_dataset.py
-AUGS = ["mirror","hsv", "gamma", "clahe", "gauss_noise", "motion_blur_small", "affine_small", "rotate", "zoom", "crop", "brightness", "contrast", "sharpness", "blur", "dropout"]
-
-# Probabilities to sweep (1 <= p <= 0)
-PS = [1.0, 0.5, 0.25]
-
-# Image size used in some augmentations (to match yolo11n input)
-IMGSZ = 640
-
-RUN_CONTROL_FIRST = True
-
-# Cleanup (so you don't run out of disk space)
-DELETE_AUG_DATASET_AFTER_RUN = True
-DELETE_AUG_YAML_AFTER_RUN = True
 
 ### Helpers
 

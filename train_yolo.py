@@ -1,14 +1,8 @@
 from ultralytics import YOLO
 import multiprocessing as mp
 import argparse
+from configs import *
 
-### Fixed training parameters
-MODEL_WEIGHTS = "yolo11n.pt"
-EPOCHS = 30
-BATCH = 32
-IMGSZ = 640
-WORKERS = 8
-AUGMENT = False
 
 def main():
     parser = argparse.ArgumentParser(description="YOLO training entrypoint")

@@ -13,12 +13,31 @@ pyenv activate venv
 pip install albumentationsx ultralytics pillow opencv-python
 ```
 
+### Experiments runs
+The runs including all models trained for the project can be downloaded as a zip file [here]()
 ### Dataset
 
 This was tested using the [KITTI 2d left train](https://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=2d) and [coco-minitrain](https://github.com/giddyyupp/coco-minitrain) datasets
+ 
+The yolo ready datasets can be downloaded from google drive below:
 
-The kitti dataset can be converted to yolo format using the provided conversion scripts in `convert/`.
-Coco-minitrain can be converted to json coco format using the script from the coco-minitrain repo, and converted to yolo with the script in `convert/`.
+To download from google drive, you can use the gdown package
+```bash
+pip install gdown
+```
+
+- The presplit (80/20 train/val) kitti dataset converted to yolo format zip can be downloaded using:
+
+```bash
+gdown https://drive.google.com/uc?id=11m1htBVId8jpAd4E16GaqzXKcPrAFjTw
+```
+
+- The coco-minitrain dataset can be downloaded using:
+```bash
+gdown https://drive.google.com/uc?id=11m1htBVId8jpAd4E16GaqzXKcPrAFjTw
+```
+
+**The kitti dataset was converted to yolo format using the provided conversion scripts in `convert/`.**
 
 ## Configure the sweep
 

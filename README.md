@@ -33,7 +33,7 @@ gdown https://drive.google.com/uc?id=11m1htBVId8jpAd4E16GaqzXKcPrAFjTw
 
 **The coco-minitrain dataset:**
 ```bash
-gdown https://drive.google.com/uc?id=11m1htBVId8jpAd4E16GaqzXKcPrAFjTw
+gdown https://drive.google.com/uc?id=1DAkqZ8PPPWjD-aOIP63T_dg5p44Ec3G6
 ```
 
 ## Sweep

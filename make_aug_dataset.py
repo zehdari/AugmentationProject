@@ -1,10 +1,10 @@
 import cv2
 import albumentations as A
+import yaml
 from pathlib import Path
 import argparse
 import json
-import re
-from path_configs import SOURCE_DATA_YAML
+from configs import *
 
 '''
 Augments a yolo dataset for the provided augmentation, only modifying train. 
@@ -212,29 +212,19 @@ def write_modified_data_yaml(output_root: Path):
     if not SOURCE_DATA_YAML.exists():
         raise FileNotFoundError(f"Source data.yaml not found: {SOURCE_DATA_YAML}")
 
-    ds_name = output_root.name 
-    parent = output_root.parent
+    cfg = yaml.safe_load(SOURCE_DATA_YAML.read_text(encoding="utf-8")) or {}
 
-    text = SOURCE_DATA_YAML.read_text(encoding="utf-8")
+    # Make train come from the augmented dataset
+    # (output_root is the dataset root that contains images/train, labels/train, etc.)
+    cfg["path"] = str(output_root.resolve())
+    cfg["train"] = "images/train"
 
-    # Train points to augmented dataset folder
-    text = re.sub(
-        r"^(train:\s*)Dataset/.*$",
-        rf"\1{ds_name}/images/train",
-        text,
-        flags=re.MULTILINE,
-    )
+    # Keep val coming from the *original* dataset
+    # Ultralytics allows val to be absolute; that’s simplest here.
+    cfg["val"] = str((BASE_DATASET / "images" / "val").resolve())
 
-    # Val always points to original Dataset val
-    text = re.sub(
-        r"^(val:\s*)Dataset/.*$",
-        r"\1Dataset/images/val",
-        text,
-        flags=re.MULTILINE,
-    )
-
-    out_yaml = parent / f"data_{ds_name}.yaml"
-    out_yaml.write_text(text, encoding="utf-8")
+    out_yaml = output_root.parent / f"data_{output_root.name}.yaml"
+    out_yaml.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
     return out_yaml
 
 ### Helpers

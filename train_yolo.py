@@ -24,13 +24,13 @@ def main():
 
     args = parser.parse_args()
 
-    data_path = str(Path(args.data).resolve())
+    # data_path = str(Path(args.data).resolve())
     # Initialize model
     model = YOLO(MODEL_WEIGHTS)
 
     # Train
     model.train(
-        data=data_path,
+        data=args.data,
         epochs=EPOCHS,
         batch=BATCH,
         imgsz=IMGSZ,

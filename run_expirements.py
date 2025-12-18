@@ -57,7 +57,7 @@ def main():
         print("RUNNING: CONTROL (base dataset, no augmentation)")
 
         dataset_name = "Dataset_control"
-        data_yaml = "data.yaml"
+        data_yaml = SOURCE_DATA_YAML
 
         run_name = "kitti_control"
         run_dir = Path(YOLO_PROJECT) / run_name

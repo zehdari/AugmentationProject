@@ -21,7 +21,7 @@ DATASET_PARENT = BASE_DATASET.parent
 
 def run_cmd(cmd: str):
     print("\n>>>", cmd)
-    subprocess.run(cmd, shell=True, check=True)
+    subprocess.run(cmd, check=True)
     
 # Read a CSV and return the last row as dict (works for Ultralytics results.csv)
 def csv_last_row(path: Path) -> dict:

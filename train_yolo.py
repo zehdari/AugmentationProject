@@ -24,7 +24,6 @@ def main():
 
     args = parser.parse_args()
 
-    # data_path = str(Path(args.data).resolve())
     # Initialize model
     model = YOLO(MODEL_WEIGHTS)
 

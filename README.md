@@ -26,12 +26,12 @@ To download from google drive, you can use the gdown package
 pip install gdown
 ```
 
-**The presplit (80/20 train/val) kitti dataset:**
+**The presplit (80/20 train/val) kitti dataset (~5GB):**
 ```bash
 gdown https://drive.google.com/uc?id=11m1htBVId8jpAd4E16GaqzXKcPrAFjTw
 ```
 
-**The coco-minitrain dataset:**
+**The coco-minitrain dataset (~10GB):**
 ```bash
 gdown https://drive.google.com/uc?id=1DAkqZ8PPPWjD-aOIP63T_dg5p44Ec3G6
 ```

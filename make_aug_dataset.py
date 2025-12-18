@@ -281,28 +281,7 @@ def main():
     ap = argparse.ArgumentParser("Generate an augmented TRAIN set (val stays original via data.yaml)")
     ap.add_argument("--input_root", required=True)
     ap.add_argument("--output_root", required=True)
-    ap.add_argument(
-        "--aug",
-        required=True,
-        choices=[
-            "combo_cs",
-            "mirror",
-            "rotate",
-            "zoom",
-            "crop",
-            "brightness",
-            "contrast",
-            "sharpness",
-            "blur",
-            "dropout",
-            "hsv",
-            "gamma",
-            "clahe",
-            "gauss_noise",
-            "motion_blur_small",
-            "affine_small",
-        ],
-    )
+    ap.add_argument("--aug", required=True)
     ap.add_argument("--p", type=float, default=1.0)
     ap.add_argument("--split", default="train")  # keep train only
     ap.add_argument("--copies", type=int, default=COPIES_PER_IMAGE_DEFAULT)

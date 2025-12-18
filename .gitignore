@@ -4,3 +4,4 @@ venv/
 .env
 runs/
 *.zip
+*.DS_STORE
